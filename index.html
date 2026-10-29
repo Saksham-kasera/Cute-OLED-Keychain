@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Retro Arcade Console - 6-in-1 Arcade Hub &amp; Companion Pet (ESP32 OLED + Web)</title>
+  <meta name="description" content="6-in-1 retro arcade console featuring Geometry Dash, Flappy Bird, Chrome Dino, Car Racing, Retro Snake, Space Invaders &amp; living Companion Pet! Play in Full HD Neon or authentic ESP32 128x64 OLED simulator mode.">
+  
+  <!-- Modern Typography from Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Top Navigation & Stats Bar -->
+  <header class="app-header">
+    <div class="logo-wrapper">
+      <div class="logo-icon" id="headerLogoIcon" aria-hidden="true"></div>
+      <div class="logo-text">
+        <h1 id="gameTitleHeading">Geometry Dash <span class="badge" id="activeGameBadge">ESP32 + WEB</span></h1>
+      </div>
+    </div>
+
+    <!-- Live Stats -->
+    <div class="header-stats">
+      <div class="stat-chip" id="statChip1">
+        <span class="stat-label" id="statLabel1">Attempts</span>
+        <span class="stat-val" id="statVal1">1</span>
+      </div>
+      <div class="stat-chip" id="statChip2">
+        <span class="stat-label" id="statLabel2">Best</span>
+        <span class="stat-val" id="statVal2">0%</span>
+      </div>
+    </div>
+
+    <!-- Quick Action Buttons -->
+    <div class="header-actions">
+      <button class="action-btn menu-hub-btn" id="openMenuBtn" title="Arcade System Menu (Press Both Buttons / Key M)">
+        <span>☰ ARCADE MENU (M)</span>
+      </button>
+      <button class="action-btn switch-game-btn" id="toggleGameBtn" title="Cycle Games (Button 2 / Key G)">
+        <span>🎮 CYCLE GAME (G)</span>
+      </button>
+      <button class="action-btn" id="toggleModeBtn" title="Switch between Full HD Neon and ESP32 128x64 OLED display">
+        <span>✨ NEON ARCADE</span>
+      </button>
+      <button class="action-btn" id="togglePracticeBtn" title="Practice Mode: Place checkpoints with Z, delete with X">
+        <span>💎 PRACTICE</span>
+      </button>
+      <button class="action-btn active" id="toggleSoundBtn" title="Toggle audio and sound effects">
+        <span>🔊 AUDIO ON</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Game Viewport -->
+  <main class="game-viewport-container">
+    
+    <!-- Real-time Level Progress Bar / Score HUD -->
+    <div class="progress-container" id="progressContainer">
+      <div class="progress-track" id="progressTrack">
+        <div class="progress-fill" id="progressFill"></div>
+        <div class="progress-marker" id="progressMarker"></div>
+      </div>
+      <div class="progress-text" id="progressVal">0%</div>
+      <span class="practice-badge hidden" id="practiceBadge">PRACTICE MODE</span>
+    </div>
+
+    <!-- Canvas Stage -->
+    <div class="canvas-wrapper" id="canvasWrapper">
+      <canvas id="gameCanvas" width="960" height="540"></canvas>
+
+      <!-- Arcade System Hub Menu Overlay (Opened by pressing both buttons simultaneously or Key M) -->
+      <div class="system-menu-overlay hidden" id="systemMenuOverlay">
+        <div class="system-menu-card">
+          <div class="system-menu-header">
+            <span class="system-menu-badge">PRESS BOTH BUTTONS SIMULTANEOUSLY</span>
+            <h2 class="system-menu-title">ARCADE SYSTEM HUB</h2>
+            <p class="system-menu-desc">Select an arcade classic or living companion pet face</p>
+          </div>
+
+          <div class="system-menu-options" id="systemMenuOptions">
+            <div class="hub-option active" data-game="face">
+              <span class="hub-num">01</span>
+              <span class="hub-emoji">😊</span>
+              <div class="hub-details">
+                <span class="hub-name">HOME (COMPANION PET FACE)</span>
+                <span class="hub-desc">Living pet with 360° iris roll, patting emotions &amp; love overload</span>
+              </div>
+              <span class="hub-enter">ENTER ➔</span>
+            </div>
+
+            <div class="hub-option" data-game="geodash">
+              <span class="hub-num">02</span>
+              <span class="hub-emoji">⚡</span>
+              <div class="hub-details">
+                <span class="hub-name">GEOMETRY DASH</span>
+                <span class="hub-desc">Cube jumps, rocket ship flight &amp; EDM chiptune</span>
+              </div>
+              <span class="hub-enter">ENTER ➔</span>
+            </div>
+
+            <div class="hub-option" data-game="flappy">
+              <span class="hub-num">03</span>
+              <span class="hub-emoji">🐥</span>
+              <div class="hub-details">
+                <span class="hub-name">FLAPPY BIRD</span>
+                <span class="hub-desc">Flapping wings, gap pipes &amp; coin chimes</span>
+              </div>
+              <span class="hub-enter">ENTER ➔</span>
+            </div>
+
+            <div class="hub-option" data-game="dino">
+              <span class="hub-num">04</span>
+              <span class="hub-emoji">🦖</span>
+              <div class="hub-details">
+                <span class="hub-name">CHROME DINO</span>
+                <span class="hub-desc">T-Rex desert runner, variable jumps &amp; pterodactyls</span>
+              </div>
+              <span class="hub-enter">ENTER ➔</span>
+            </div>
+
+            <div class="hub-option" data-game="car">
+              <span class="hub-num">05</span>
+              <span class="hub-emoji">🏎️</span>
+              <div class="hub-details">
+                <span class="hub-name">CAR RACING (HIGHWAY OVERTAKE)</span>
+                <span class="hub-desc">3-lane speedway, sports cars, semi-trucks, coins &amp; ⚡nitro turbo</span>
+              </div>
+              <span class="hub-enter">ENTER ➔</span>
+            </div>
+
+            <div class="hub-option" data-game="snake">
+              <span class="hub-num">06</span>
+              <span class="hub-emoji">🐍</span>
+              <div class="hub-details">
+                <span class="hub-name">RETRO SNAKE</span>
+                <span class="hub-desc">Cyberpunk glowing snake, juicy apples, speed ramp &amp; high scores</span>
+              </div>
+              <span class="hub-enter">ENTER ➔</span>
+            </div>
+
+            <div class="hub-option" data-game="invaders">
+              <span class="hub-num">07</span>
+              <span class="hub-emoji">👾</span>
+              <div class="hub-details">
+                <span class="hub-name">SPACE INVADERS</span>
+                <span class="hub-desc">Alien fleet armada, laser cannon, bunkers &amp; flying saucer UFO</span>
+              </div>
+              <span class="hub-enter">ENTER ➔</span>
+            </div>
+          </div>
+
+          <div class="system-menu-footer">
+            <span>⌨️ <strong>UP / DOWN</strong> TO NAVIGATE • <strong>SPACE / ENTER</strong> TO SELECT • <strong>ESC / M</strong> TO CLOSE</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- In-Game State Overlays -->
+      <div class="game-overlay" id="gameOverlay">
+        <div class="overlay-card">
+          <h2 class="overlay-title" id="overlayTitle">GEOMETRY DASH</h2>
+          <p class="overlay-subtitle" id="overlaySubtitle">PRESS SPACE / CLICK TO JUMP</p>
+
+          <div class="overlay-stats-row">
+            <div class="overlay-stat-item">
+              <div class="stat-label" id="overlayStatLabel1">Score / Progress</div>
+              <div class="val" id="overlayProgressVal">0%</div>
+            </div>
+            <div class="overlay-stat-item">
+              <div class="stat-label">Best Record</div>
+              <div class="val" id="overlayBestVal">0%</div>
+            </div>
+          </div>
+
+          <div class="overlay-buttons-row">
+            <button class="play-btn-large" id="overlayActionBtn">
+              <span>⚡ PLAY / JUMP (SPACE)</span>
+            </button>
+            <button class="play-btn-secondary" id="overlaySwitchBtn">
+              <span>🎮 CYCLE GAME (G)</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Control & Customization Deck -->
+    <section class="game-deck">
+      
+      <!-- Key Bindings & Hardware Buttons -->
+      <div class="deck-panel">
+        <div class="deck-title">
+          <span>🔘 Hardware &amp; Web Controls</span>
+        </div>
+        <div class="keys-grid">
+          <div class="key-card highlight-menu">
+            <span class="key-tag">BUTTON 1 + 2</span>
+            <span class="key-tag">KEY M / B</span>
+            <span class="key-desc">Open Arcade Hub Menu</span>
+          </div>
+          <div class="key-card highlight">
+            <span class="key-tag">BUTTON 1</span>
+            <span class="key-tag">SPACE / CLICK</span>
+            <span class="key-desc">Action / Jump / Steer / Shoot</span>
+          </div>
+          <div class="key-card highlight-select">
+            <span class="key-tag">BUTTON 2</span>
+            <span class="key-tag">KEY G</span>
+            <span class="key-desc">Cycle Game / Next Option</span>
+          </div>
+          <div class="key-card highlight-touch" id="virtualTouchCard" style="cursor: pointer;" title="Tap or hold to trigger capacitive touch sensor!">
+            <span class="key-tag" style="background: rgba(255, 0, 119, 0.25); color: #ff66b2; border-color: var(--neon-pink);">TOUCH SENSOR</span>
+            <span class="key-tag">KEY P / HOLD</span>
+            <span class="key-desc">Pat Pet / Universal Action</span>
+          </div>
+          <div class="key-card">
+            <span class="key-tag">ARROWS / WASD</span>
+            <span class="key-desc">Steer Lanes / Turn Snake / Aim Cannon</span>
+          </div>
+          <div class="key-card">
+            <span class="key-tag">O</span>
+            <span class="key-desc">Toggle ESP32 OLED 128x64 Mode</span>
+          </div>
+          <div class="key-card">
+            <span class="key-tag">1 / 2 / 3 / 4 / 5 / 6 / 7</span>
+            <span class="key-desc">Quick Jump: Face / GD / Bird / Dino / Car / Snake / Inv</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Icon & Color Customizer -->
+      <div class="deck-panel" id="customizerDeck">
+        <div class="deck-title">
+          <span>🎨 Avatar Customizer</span>
+        </div>
+        <div class="customizer-options">
+          <div>
+            <div class="stat-label" style="margin-bottom: 6px;">Color</div>
+            <div class="color-picker-group">
+              <div class="color-dot active" data-color="#00f0ff" style="background: #00f0ff;" title="Cyan"></div>
+              <div class="color-dot" data-color="#00ff66" style="background: #00ff66;" title="Lime"></div>
+              <div class="color-dot" data-color="#ffe600" style="background: #ffe600;" title="Yellow"></div>
+              <div class="color-dot" data-color="#ff0077" style="background: #ff0077;" title="Hot Pink"></div>
+              <div class="color-dot" data-color="#9d00ff" style="background: #9d00ff;" title="Purple"></div>
+              <div class="color-dot" data-color="#ff7700" style="background: #ff7700;" title="Orange"></div>
+            </div>
+          </div>
+
+          <div style="margin-left: 20px;">
+            <div class="stat-label" style="margin-bottom: 6px;">Face Style</div>
+            <div class="face-picker-group">
+              <button class="face-btn active" data-face="classic" title="Classic Face">■</button>
+              <button class="face-btn" data-face="ninja" title="Ninja Face">==</button>
+              <button class="face-btn" data-face="x-eyes" title="X Eyes">✕</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Hardware Information Footer -->
+  <footer class="app-footer">
+    <div class="hardware-callout">
+      <span>📟 ESP32 HARDWARE SETUP:</span>
+      <span>Button 1: <strong>GPIO 3</strong> (Action) • Button 2: <strong>GPIO 2</strong> (Switch) • Touch: <strong>GPIO 6</strong> • OLED: <strong>GPIO 4 SDA / 5 SCL</strong></span>
+    </div>
+    <p>ESP32 Arduino Firmware in <code>esp32_oled_demo.ino</code> • 6-in-1 Arcade Engine: Geometry Dash, Flappy Bird, Chrome Dino, Car Racing, Retro Snake &amp; Space Invaders</p>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="audio.js"></script>
+  <script src="game.js"></script>
+
+</body>
+</html>
